@@ -37,4 +37,9 @@ public class ApiV1MemberController {
         );
 
     }
+
+    @PostMapping('/login')
+    public void login() {
+
+    }
 }
