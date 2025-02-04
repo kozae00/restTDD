@@ -69,5 +69,35 @@ class RestTddApplicationTests {
 				.andExpect(jsonPath("$.data.modifiedDate").exists());
 	}
 
+	@Test
+	@DisplayName("회원가입2 - username이 이미 존재하는 케이스")
+	void join2() throws Exception {
+		ResultActions resultActions = mvc
+				.perform(
+						post("/api/v1/members/join")
+								.content("""
+										{
+										    "username" : "user1",
+										    "password" : "1234",
+										    "nickname" : "무명"
+										}
+										""".stripIndent())
+								.contentType(
+										new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8)
+								)
+				)
+				.andDo(print());
+
+		Member member = memberService.findByUsername("usernew").get();
+
+		assertThat(member.getNickname()).isEqualTo("무명");
+
+		resultActions
+				.andExpect(status().isCreated())
+				.andExpect(handler().handlerType(ApiV1MemberController.class))
+				.andExpect(handler().methodName("join"))
+				.andExpect(jsonPath("$.code").value("409-1"))
+				.andExpect(jsonPath("$.msg").value("이미 사용중인 아이디입니다."));
+	}
 
 }
