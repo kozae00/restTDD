@@ -32,28 +32,33 @@ public class ApiV1PostControllerTest {
         resultActions
                 .andExpect(jsonPath("$.data").exists())
                 .andExpect(jsonPath("$.data.id").value(post.getId()))
-                .andExpect(jsonPath("$.data.title").value(post.getAuthor().getId()))
-                .andExpect(jsonPath("$.data.content").value(post.getAuthor().getId()))
+                .andExpect(jsonPath("$.data.title").value(post.getTitle()))
+                .andExpect(jsonPath("$.data.content").value(post.getContent()))
                 .andExpect(jsonPath("$.data.authorId").value(post.getAuthor().getId()))
-                .andExpect(jsonPath("$.data.authorName").value(post.getAuthor().getId()))
+                .andExpect(jsonPath("$.data.authorName").value(post.getAuthor().getNickname()))
                 .andExpect(jsonPath("$.data.createdDate").value(matchesPattern(post.getCreatedDate().toString().replaceAll("0+$", "") + ".*")))
                 .andExpect(jsonPath("$.data.modifiedDate").value(matchesPattern(post.getModifiedDate().toString().replaceAll("0+$", "") + ".*")));
     }
+
     @Test
     @DisplayName("글 단건 조회")
     void item() throws Exception {
+
         long postId = 1;
+
         ResultActions resultActions = mvc
                 .perform(
                         get("/api/v1/posts/%d".formatted(postId))
                 )
                 .andDo(print());
+
         resultActions
                 .andExpect(status().isOk())
                 .andExpect(handler().handlerType(ApiV1PostController.class))
                 .andExpect(handler().methodName("getItem"))
                 .andExpect(jsonPath("$.code").value("200-1"))
                 .andExpect(jsonPath("$.msg").value("%d번 글을 조회하였습니다.".formatted(postId)));
+
         Post post = postService.getItem(postId).get();
         checkPost(resultActions, post);
     }
