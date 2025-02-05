@@ -96,15 +96,8 @@ class ApiV1MemberControllerTest {
                 .andExpect(jsonPath("$.msg").value("이미 사용중인 아이디입니다."));
     }
 
-    @Test
-    @DisplayName("로그인 - 성공 케이스")
-    void login() throws Exception {
-
-        String username = "user1";
-        String password = "user11234";
-
-        // 요청
-        ResultActions resultActions = mvc
+    private ResultActions loingRequest(String username, String password) throws Exception {
+        return mvc
                 .perform(
                         post("/api/v1/members/login")
                                 .content("""
@@ -120,7 +113,17 @@ class ApiV1MemberControllerTest {
                                 )
                 )
                 .andDo(print());
+    }
 
+    @Test
+    @DisplayName("로그인 - 성공 케이스")
+    void login() throws Exception {
+
+        String username = "user1";
+        String password = "user11234";
+
+        // 요청
+        ResultActions resultActions = loingRequest(username, password);
         Member member = memberService.findByUsername(username).get();
 
         // 응답. (요청 처리 결과)
@@ -147,23 +150,7 @@ class ApiV1MemberControllerTest {
         String password = "1234";
 
         // 요청
-        ResultActions resultActions = mvc
-                .perform(
-                        post("/api/v1/members/login")
-                                .content("""
-                                        {
-                                            "username": "%s",
-                                            "password": "%s"
-                                        }
-                                        """
-                                        .formatted(username, password)
-                                        .stripIndent())
-                                .contentType(
-                                        new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8)
-                                )
-                )
-                .andDo(print());
-
+        ResultActions resultActions = loingRequest(username, password);
 
         // 응답. (요청 처리 결과)
         resultActions
