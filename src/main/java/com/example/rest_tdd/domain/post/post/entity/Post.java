@@ -80,7 +80,6 @@ public class Post extends BaseTime {
     }
 
     public void canRead(Member actor) {
-        if(this.published) return;
         if(actor.equals(this.author)) return;
         if(actor.isAdmin()) return;
 
