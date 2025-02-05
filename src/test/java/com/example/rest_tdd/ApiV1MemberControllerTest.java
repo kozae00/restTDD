@@ -178,10 +178,10 @@ public class ApiV1MemberControllerTest {
     }
 
     @Test
-    @DisplayName("로그인 - 실패 - 존재하지 않는 username")
+    @DisplayName("로그인 - 실패 - 잘못된 username")
     void login3() throws Exception {
 
-        String username = "";
+        String username = "aaaaaa";
         String password = "1234";
 
         ResultActions resultActions = loingRequest(username, password);
@@ -192,6 +192,42 @@ public class ApiV1MemberControllerTest {
                 .andExpect(handler().methodName("login"))
                 .andExpect(jsonPath("$.code").value("401-1"))
                 .andExpect(jsonPath("$.msg").value("잘못된 아이디입니다."));
+
+    }
+
+    @Test
+    @DisplayName("로그인 - 실패 - username 누락")
+    void login4() throws Exception {
+        // @NotBlank를 사용해, -> GlobalExceptionHandler로 예외처리 -> BadRequest로 응답
+        String username = "";
+        String password = "1234";
+
+        ResultActions resultActions = loingRequest(username, password);
+
+        resultActions
+                .andExpect(status().isBadRequest())
+                .andExpect(handler().handlerType(ApiV1MemberController.class))
+                .andExpect(handler().methodName("login"))
+                .andExpect(jsonPath("$.code").value("400-1"))
+                .andExpect(jsonPath("$.msg").value("username : NotBlank : must not be blank"));
+
+    }
+
+    @Test
+    @DisplayName("로그인 - 실패 - password 누락")
+    void login5() throws Exception {
+
+        String username = "user1";
+        String password = "";
+
+        ResultActions resultActions = loingRequest(username, password);
+
+        resultActions
+                .andExpect(status().isBadRequest())
+                .andExpect(handler().handlerType(ApiV1MemberController.class))
+                .andExpect(handler().methodName("login"))
+                .andExpect(jsonPath("$.code").value("400-1"))
+                .andExpect(jsonPath("$.msg").value("password : NotBlank : must not be blank"));
 
     }
 
