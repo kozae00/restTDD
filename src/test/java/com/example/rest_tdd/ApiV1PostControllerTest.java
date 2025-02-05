@@ -63,7 +63,7 @@ public class ApiV1PostControllerTest {
     void item1() throws Exception {
 
         long postId = 1;
-        String apiKey = "user2";
+        String apiKey = "";
 
         ResultActions resultActions =itemRequest(postId, apiKey);
 

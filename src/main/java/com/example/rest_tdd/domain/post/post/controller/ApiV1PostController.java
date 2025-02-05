@@ -27,9 +27,10 @@ public class ApiV1PostController {
                 () -> new ServiceException("404-1", "존재하지 않는 글입니다.")
         );
 
-        Member actor = rq.getAuthenticatedActor();
-
-        post.canRead(actor);
+        if(!post.isPublished()) {
+            Member actor = rq.getAuthenticatedActor();
+            post.canRead(actor);
+        }
 
         return new RsData<>(
                 "200-1",
@@ -81,19 +82,21 @@ public class ApiV1PostController {
 
     @DeleteMapping("{id}")
     public RsData<Void> delete(@PathVariable long id) {
+
+        Member actor = rq.getAuthenticatedActor();
+
         Post post = postService.getItem(id).orElseThrow(
                 () -> new ServiceException("404-1", "존재하지 않는 글입니다.")
         );
 
-        if(!post.isPublished()) {
-            Member actor = rq.getAuthenticatedActor(); //
-            post.canRead(actor);
-        }
+        post.canDelete(actor);
+        postService.delete(post);
 
         return new RsData<>(
                 "200-1",
                 "%d번 글 삭제가 완료되었습니다.".formatted(id)
         );
+
     }
 
 }
