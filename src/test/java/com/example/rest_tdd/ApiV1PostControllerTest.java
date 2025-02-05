@@ -27,12 +27,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @Transactional
 public class ApiV1PostControllerTest {
+
     @Autowired
     private MockMvc mvc;
     @Autowired
     private PostService postService;
 
     private void checkPost(ResultActions resultActions, Post post) throws Exception {
+
         resultActions
                 .andExpect(jsonPath("$.data").exists())
                 .andExpect(jsonPath("$.data.id").value(post.getId()))
@@ -45,20 +47,21 @@ public class ApiV1PostControllerTest {
     }
 
     private ResultActions itemRequest(long postId) throws Exception {
-        return  mvc
+        return mvc
                 .perform(
                         get("/api/v1/posts/%d".formatted(postId))
                 )
                 .andDo(print());
+
     }
 
     @Test
-    @DisplayName("글 단건 조회")
+    @DisplayName("글 단건 조회 1")
     void item1() throws Exception {
 
         long postId = 1;
 
-        ResultActions resultActions = itemRequest(postId);
+        ResultActions resultActions =itemRequest(postId);
 
         resultActions
                 .andExpect(status().isOk())
@@ -68,31 +71,38 @@ public class ApiV1PostControllerTest {
                 .andExpect(jsonPath("$.msg").value("%d번 글을 조회하였습니다.".formatted(postId)));
 
         Post post = postService.getItem(postId).get();
+
         checkPost(resultActions, post);
+
     }
 
     @Test
     @DisplayName("글 단건 조회 2 - 없는 글 조회")
     void item2() throws Exception {
+
         long postId = 100000;
+
         ResultActions resultActions = itemRequest(postId);
+
         resultActions
                 .andExpect(status().isNotFound())
                 .andExpect(handler().handlerType(ApiV1PostController.class))
                 .andExpect(handler().methodName("getItem"))
                 .andExpect(jsonPath("$.code").value("404-1"))
                 .andExpect(jsonPath("$.msg").value("존재하지 않는 글입니다."));
+
     }
 
 
-    private ResultActions writeRequest(String title, String content) throws Exception {
+    private ResultActions writeRequest(String apiKey, String title, String content) throws Exception {
         return mvc
                 .perform(
                         post("/api/v1/posts")
+                                .header("Authorization", "Bearer " + apiKey)
                                 .content("""
                                         {
                                             "title": "%s",
-                                            "content": "%s",
+                                            "content": "%s"
                                         }
                                         """
                                         .formatted(title, content)
@@ -108,10 +118,11 @@ public class ApiV1PostControllerTest {
     @DisplayName("글 작성")
     void write1() throws Exception {
 
-        String title ="새로운 글 제목";
-        String content ="새로운 글 내용";
+        String apiKey = "user1";
+        String title = "새로운 글 제목";
+        String content = "새로운 글 내용";
 
-        ResultActions resultActions = writeRequest(title, content);
+        ResultActions resultActions = writeRequest(apiKey, title, content);
 
         Post post = postService.getLatestItem().get();
 
@@ -123,6 +134,7 @@ public class ApiV1PostControllerTest {
                 .andExpect(jsonPath("$.msg").value("%d번 글 작성이 완료되었습니다.".formatted(post.getId())));
 
         checkPost(resultActions, post);
+
     }
 
 }
