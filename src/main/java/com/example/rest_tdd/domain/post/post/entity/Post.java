@@ -75,7 +75,7 @@ public class Post extends BaseTime {
 
         if(actor.equals(this.author)) return;
 
-        throw new ServiceException("403-1", "자신이 작성한 댓글만 삭제 가능합니다.");
+        throw new ServiceException("403-1", "자신이 작성한 글만 삭제 가능합니다.");
     }
 
 }
