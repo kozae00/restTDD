@@ -97,7 +97,7 @@ class ApiV1MemberControllerTest {
     }
 
     @Test
-    @DisplayName("로그인")
+    @DisplayName("로그인 - 성공 케이스")
     void login() throws Exception {
 
         String username = "user1";
@@ -137,6 +137,41 @@ class ApiV1MemberControllerTest {
                 .andExpect(jsonPath("$.data.item.modifiedDate").value(member.getModifiedDate().toString()))
                 .andExpect(jsonPath("$.data.apiKey").value(member.getApiKey()));
 
+    }
+
+    @Test
+    @DisplayName("로그인 - 실패 케이스 - 비밀번호 틀림")
+    void login2() throws Exception {
+
+        String username = "user1";
+        String password = "1234";
+
+        // 요청
+        ResultActions resultActions = mvc
+                .perform(
+                        post("/api/v1/members/login")
+                                .content("""
+                                        {
+                                            "username": "%s",
+                                            "password": "%s"
+                                        }
+                                        """
+                                        .formatted(username, password)
+                                        .stripIndent())
+                                .contentType(
+                                        new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8)
+                                )
+                )
+                .andDo(print());
+
+
+        // 응답. (요청 처리 결과)
+        resultActions
+                .andExpect(status().isUnauthorized())
+                .andExpect(handler().handlerType(ApiV1MemberController.class))
+                .andExpect(handler().methodName("login"))
+                .andExpect(jsonPath("$.code").value("401-1"))
+                .andExpect(jsonPath("$.msg").value("비밀번호가 일치하지 않습니다."));
 
     }
 }
