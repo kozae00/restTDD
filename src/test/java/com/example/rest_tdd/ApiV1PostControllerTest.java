@@ -347,7 +347,7 @@ public class ApiV1PostControllerTest {
                 .andExpect(handler().handlerType(ApiV1PostController.class))
                 .andExpect(handler().methodName("delete"))
                 .andExpect(jsonPath("$.code").value("403-1"))
-                .andExpect(jsonPath("$.msg").value("자신이 작성한 글만 수정 가능합니다."));
+                .andExpect(jsonPath("$.msg").value("자신이 작성한 글만 삭제 가능합니다."));
 
     }
 }
