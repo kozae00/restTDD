@@ -36,7 +36,6 @@ public class ApiV1MemberControllerTest {
     @Autowired
     private MemberService memberService;
 
-
     private void checkMember(ResultActions resultActions, Member member) throws Exception {
         resultActions
                 .andExpect(jsonPath("$.data").exists())
@@ -45,6 +44,7 @@ public class ApiV1MemberControllerTest {
                 .andExpect(jsonPath("$.data.createdDate").value(matchesPattern(member.getCreatedDate().toString().replaceAll("0+$", "") + ".*")))
                 .andExpect(jsonPath("$.data.modifiedDate").value(matchesPattern(member.getModifiedDate().toString().replaceAll("0+$", "") + ".*")));
     }
+
 
     @Test
     @DisplayName("회원 가입")
@@ -130,6 +130,7 @@ public class ApiV1MemberControllerTest {
                 .andDo(print());
     }
 
+
     @Test
     @DisplayName("로그인 - 성공")
     void login1() throws Exception {
@@ -176,19 +177,24 @@ public class ApiV1MemberControllerTest {
 
     }
 
-    @Test
-    @DisplayName("내 정보 조회")
-    void me() throws Exception {
 
-        String apiKey = "user1";
-
-        ResultActions resultActions = mvc
+    private ResultActions meRequest(String apiKey) throws Exception {
+        return mvc
                 .perform(
                         get("/api/v1/members/me")
                                 .header("Authorization", "Bearer " + apiKey)
 
                 )
                 .andDo(print());
+    }
+
+    @Test
+    @DisplayName("내 정보 조회")
+    void me1() throws Exception {
+
+        String apiKey = "user1";
+
+        ResultActions resultActions = meRequest(apiKey);
 
         resultActions
                 .andExpect(status().isOk())
@@ -202,5 +208,17 @@ public class ApiV1MemberControllerTest {
 
     }
 
+    @Test
+    @DisplayName("내 정보 조회 - 실패 - 잘못된 api key")
+    void me2() throws Exception {
+        String apiKey = "";
+        ResultActions resultActions = meRequest(apiKey);
+        resultActions
+                .andExpect(status().isUnauthorized())
+                .andExpect(handler().handlerType(ApiV1MemberController.class))
+                .andExpect(handler().methodName("me"))
+                .andExpect(jsonPath("$.code").value("401-1"))
+                .andExpect(jsonPath("$.msg").value("잘못된 인증키 입니다."));
+    }
 
 }
