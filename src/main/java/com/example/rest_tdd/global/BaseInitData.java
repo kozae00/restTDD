@@ -58,14 +58,14 @@ public class BaseInitData {
         Member user2 = memberService.findByUsername("user2").get();
 
 
-        Post post1 = postService.write(user1, "해외축구에서 누가 축구 제일 잘하는 것 같아?", "킹찍히 호날두가 goat인듯", true);
+        Post post1 = postService.write(user1, "해외축구에서 누가 축구 제일 잘하는 것 같아?", "킹찍히 호날두가 goat인듯", true, true);
         post1.addComment(user1, "젖닌이 수듄");
         post1.addComment(user2, "메시가 GOAT이지...");
 
-        Post post2 = postService.write(user1, "배가 고픈데", "피자를 먹을까? 치킨을 먹을까?", true);
+        Post post2 = postService.write(user1, "배가 고픈데", "피자를 먹을까? 치킨을 먹을까?", true, false);
         post2.addComment(user1, "족발 먹으렴.");
 
-        postService.write(user2, "title3", "content3", false);
+        postService.write(user2, "title3", "content3", false, true);
 
     }
 
