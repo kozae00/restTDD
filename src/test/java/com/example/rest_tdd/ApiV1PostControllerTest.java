@@ -51,20 +51,26 @@ public class ApiV1PostControllerTest {
     @Test
     @DisplayName("글 다건 조회")
     void items1() throws Exception {
+
         ResultActions resultActions = mvc
                 .perform(
                         get("/api/v1/posts")
                 )
                 .andDo(print());
+
         resultActions
                 .andExpect(status().isOk())
                 .andExpect(handler().handlerType(ApiV1PostController.class))
                 .andExpect(handler().methodName("getItems"))
                 .andExpect(jsonPath("$.code").value("200-1"))
                 .andExpect(jsonPath("$.msg").value("글 목록 조회가 완료되었습니다."));
-        List<Post> posts = postService.getItems();
+
+        List<Post> posts = postService.getListedItems();
+
         for(int i = 0; i < posts.size(); i++) {
+
             Post post = posts.get(i);
+
             resultActions
                     .andExpect(jsonPath("$.data[%d]".formatted(i)).exists())
                     .andExpect(jsonPath("$.data[%d].id".formatted(i)).value(post.getId()))
@@ -77,6 +83,8 @@ public class ApiV1PostControllerTest {
                     .andExpect(jsonPath("$.data[%d].createdDate".formatted(i)).value(matchesPattern(post.getCreatedDate().toString().replaceAll("0+$", "") + ".*")))
                     .andExpect(jsonPath("$.data[%d].modifiedDate".formatted(i)).value(matchesPattern(post.getModifiedDate().toString().replaceAll("0+$", "") + ".*")));
         }
+
+
     }
 
 
