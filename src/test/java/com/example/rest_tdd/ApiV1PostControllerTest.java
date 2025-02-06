@@ -69,7 +69,7 @@ public class ApiV1PostControllerTest {
                 .andExpect(jsonPath("$.data.currentPageNo").isNumber()) // 현재 페이지 번호
                 .andExpect(jsonPath("$.data.totalPages").isNumber()); // 전체 페이지 개수
 
-        Page<Post> postPage = postService.getListedItems(1, 3);
+        Page<Post> postPage = postService.getListedItems(1, 3, "title", "");
         List<Post> posts = postPage.getContent();
 
         for(int i = 0; i < posts.size(); i++) {
@@ -95,11 +95,13 @@ public class ApiV1PostControllerTest {
     @Test
     @DisplayName("글 다건 조회 - 검색 - 제목, 페이징이 되어야 함.")
     void items2() throws Exception {
+
         int page = 1;
         int pageSize = 3;
         // 검색어, 검색 대상
         String keywordType = "title";
         String keyword = "title";
+
         ResultActions resultActions = mvc
                 .perform(
                         get("/api/v1/posts?page=%d&pageSize=%d&keywordType=%s&keyword=%s"
@@ -107,6 +109,7 @@ public class ApiV1PostControllerTest {
                         )
                 )
                 .andDo(print());
+
         resultActions
                 .andExpect(status().isOk())
                 .andExpect(handler().handlerType(ApiV1PostController.class))
@@ -116,11 +119,15 @@ public class ApiV1PostControllerTest {
                 .andExpect(jsonPath("$.data.items.length()").value(pageSize)) // 한페이지당 보여줄 글 개수
                 .andExpect(jsonPath("$.data.currentPageNo").value(page)) // 현재 페이지
                 .andExpect(jsonPath("$.data.totalPages").value(3))
-                .andExpect(jsonPath("$.data.totalItems").value(7));
-        Page<Post> postPage = postService.getListedItems(page, pageSize);
+                .andExpect(jsonPath("$.data.totalItems").value(8));
+
+        Page<Post> postPage = postService.getListedItems(page, pageSize, keywordType, keyword);
         List<Post> posts = postPage.getContent();
+
         for(int i = 0; i < posts.size(); i++) {
+
             Post post = posts.get(i);
+
             resultActions
                     .andExpect(jsonPath("$.data.items[%d]".formatted(i)).exists())
                     .andExpect(jsonPath("$.data.items[%d].id".formatted(i)).value(post.getId()))
@@ -133,6 +140,8 @@ public class ApiV1PostControllerTest {
                     .andExpect(jsonPath("$.data.items[%d].createdDate".formatted(i)).value(matchesPattern(post.getCreatedDate().toString().replaceAll("0+$", "") + ".*")))
                     .andExpect(jsonPath("$.data.items[%d].modifiedDate".formatted(i)).value(matchesPattern(post.getModifiedDate().toString().replaceAll("0+$", "") + ".*")));
         }
+
+
     }
 
 
